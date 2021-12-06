@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Groups</title>
+  <title>Challenges</title>
 </head>
 <body>
 
@@ -31,7 +31,7 @@
 
         const countryScale = d3.scaleOrdinal()
           .domain(countries)
-          .range(['cornflowerblue', 'gold', 'green', 'tomato'])
+          .range(['cornflowerblue', 'gold', 'green', 'tomato', 'pink'])
         
         const popScale = d3.scaleLinear()
           .domain(pop_extent)
@@ -89,6 +89,14 @@
           })
           .attr('stroke', '#000')
           .attr('fill', 'none')
+
+        node
+          .append('text')
+          .text(d => d.label + ' - ' + d.country)
+          .attr('x', 10)
+          .attr('y', (d, i) => (30 * i) + 500)
+          .style('font-family', 'Helvetica')
+          .style('font-size', '24px')
 
       })
 
