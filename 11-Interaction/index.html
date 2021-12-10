@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Interaction</title>
+  <style>
+    /* Put the box in the center of the page */
+    body, html {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  </head>
+  <body>
+
+  <svg id="svg" width="600" height="300"></svg>
+
+  <select id="select-1">
+    <option value="0">1901</option>
+    <option value="1">1902</option>
+    <option value="2">1903</option>
+    <option value="3">1904</option>
+    <option value="4">1905</option>
+  </select>
+
+  <select id="select-2">
+    <option value="0">1901</option>
+    <option value="1">1902</option>
+    <option value="2">1903</option>
+    <option value="3">1904</option>
+    <option value="4">1905</option>
+  </select>
+
+  <select id="select-3">
+    <option value="0">1901</option>
+    <option value="1">1902</option>
+    <option value="2">1903</option>
+    <option value="3">1904</option>
+    <option value="4">1905</option>
+  </select>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+
+    let data
+    let year
+    let graph
+    let linegen
+
+    function convertToArray(obj) {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+      return months.map(month => {
+        const temp = parseFloat(obj[month])
+          return { month: month, temp }
+      })
+    }
+    async function handleData() {
+      width = 600
+      height = 300
+      margin = 40
+
+      const data = await d3.csv('Weather Data in India from 1901 to 2017.csv')
+      const year_1901 = data[0]
+      const months_1901 = convertToArray(year_1901)
+
+      let extentAllYearsTemp = []
+      let allTemps = []
+      for (let i = 0; i < 116; i += 1) {
+        const year = convertToArray(data[i])
+        extentAllYearsTemp.push(d3.extent(year, d => d.temp))
+        allTemps.push(extentAllYearsTemp[i][0])
+        allTemps.push(extentAllYearsTemp[i][1])
+      }
+
+
+      const xscale = d3.scaleLinear()
+        .domain([0, months_1901.length - 1])
+        .range([margin, width - margin])
+
+      const yscale = d3.scaleLinear()
+        .domain(d3.extent(months_1901, d => d.temp))
+        .range([height - margin, margin])
+
+      const monthsScale = d3.scaleTime()
+        .domain([new Date('1901-01-01'), new Date('1901-12-01')])
+        .range([margin, width - margin])
+        .nice()
+
+      const svg = d3
+        .select('#svg')
+
+      const graph = svg
+        .append('g')
+
+      const linegen = d3.area()
+        .x((d, i) => xscale(i))
+        .y0(d => yscale(d.temp))
+        .y1(height - margin)
+        .curve(d3.curveBasis)
+
+      const path1 = graph
+        .append('path')
+        .attr('d', linegen(months_1901))
+        .attr('fill', 'rgb(255, 0, 0, 0.2)')
+
+      const path2 = graph
+      .append('path')
+      .attr('d', linegen(months_1901))
+      .attr('fill', 'rgb(0, 255, 0, 0.2)')
+
+      const path3 = graph
+      .append('path')
+      .attr('d', linegen(months_1901))
+      .attr('fill', 'rgb(0, 0, 255, 0.2)')
+
+      const bottomAxis = d3.axisBottom(monthsScale)
+      const leftAxis = d3.axisLeft(yscale)
+
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height - margin})`)
+        .call(bottomAxis)
+
+      svg
+        .append('g')
+        .attr('transform', `translate(${margin}, 0)`)
+        .call(leftAxis)
+
+        document.addEventListener('change', (e) => {
+      // we have access to:
+      // data, year, graph, and linegen here
+        document.querySelector('#select-1')
+          .addEventListener('change', e => {
+          const index = parseInt(e.target.value)
+          const hue = 360 / 12 * index // data.length
+          const fillColor = `hsla(${hue}, 100%, 50%, 0.33)`
+          console.log(data[index])
+          path1
+            .transition() // Add a tranistion
+            .duration(1000) // set the duration
+            .ease(d3.easeExpIn) // Add an easing function here! 
+            .attr('d', linegen(convertToArray(data[index])))
+            .attr('fill', fillColor)
+        })
+        document.querySelector('#select-2')
+          .addEventListener('change', e => {
+          const index = parseInt(e.target.value)
+          const hue = 360 / 12 * index // data.length
+          const fillColor = `hsla(${hue}, 100%, 50%, 0.33)`
+          console.log(data[index])
+          path2
+            .transition() // Add a tranistion
+            .duration(1000) // set the duration
+            .ease(d3.easeExpIn) // Add an easing function here! 
+            .attr('d', linegen(convertToArray(data[index])))
+            .attr('fill', fillColor)
+        })
+        document.querySelector('#select-3')
+          .addEventListener('change', e => {
+          const index = parseInt(e.target.value)
+          const hue = 360 / 12 * index // data.length
+          const fillColor = `hsla(${hue}, 100%, 50%, 0.33)`
+          console.log(data[index])
+          path3
+            .transition() // Add a tranistion
+            .duration(1000) // set the duration
+            .ease(d3.easeExpIn) // Add an easing function here! 
+            .attr('d', linegen(convertToArray(data[index])))
+            .attr('fill', fillColor)
+        })
+      })
+
+    }
+
+    handleData()
+  </script>
+  </body>
