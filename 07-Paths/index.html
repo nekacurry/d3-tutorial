@@ -38,10 +38,34 @@
 
     function handleData(data) {
       const baData = getDataForState(data, 'BA')
+
+      const xscale = d3.scaleLinear()
+        .domain([0, baData.length]) // number of values
+        .range([40, 560]) // width of #svg
+
+      const percipitationExtents = d3.extent(baData, d => d.precipitation)
+
+      const yscale = d3.scaleLinear()
+        .domain(percipitationExtents)
+        .range([360, 40])
+
+      //line generator
+      const linegen = d3.line()
+        .x((d, i) => xscale(i))
+        .y(d => yscale(d.precipitation))
+        .curve(d3.curveLinear)
+      
+      d3.select('#svg')
+        .append('path')
+        .attr('d', linegen(baData))
+        .attr('stroke-width', 3)
+        .attr('stroke', 'cornflowerblue')
+        .attr('fill', 'none')
     }
 
     d3.csv('precipitation.csv')
       .then(handleData)
+
   </script>
   </body>
 </html>
